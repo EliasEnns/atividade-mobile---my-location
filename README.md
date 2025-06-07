@@ -1,43 +1,49 @@
-# My Location Base
+# My Location App
 
 ## Descrição
-My location Base é a base de um app em react native expo para que estudantes possam aprender na prática o uso de persistência de dados e permissões em Apps com React Native expo.
+My Location App é uma aplicação React Native Expo **completa e funcional**, desenvolvida como um projeto prático para demonstrar a implementação de persistência de dados e gerenciamento de permissões em aplicativos mobile.
 
-A App possui um botão simulando uma configuração de dark mode e uma lista exibindo as localizações capturadas.
+A aplicação possui as seguintes funcionalidades:
+* **Controle de Tema (Dark Mode):** Um switch que permite alternar entre os temas claro e escuro. A preferência do usuário é salva utilizando `AsyncStorage`, garantindo que o tema escolhido persista entre as sessões do aplicativo.
+* **Captura de Localização:** Um botão permite capturar a localização geográfica atual do usuário (latitude e longitude). Antes da captura, o aplicativo solicita as permissões de localização necessárias utilizando `expo-location`.
+* **Persistência de Localizações:** Todas as localizações capturadas são salvas e armazenadas em um banco de dados SQLite local, utilizando `expo-sqlite`. Ao iniciar o aplicativo, as localizações previamente salvas são carregadas e exibidas em uma lista.
+* **Limpeza de Dados:** Um botão dedicado permite ao usuário limpar todas as localizações armazenadas no banco de dados.
+* **Layout Responsivo:** A lista de localizações é configurada para ser scrollável e ocupa de forma otimizada o espaço disponível na tela, proporcionando uma experiência de usuário fluida.
 
-O objetivo do aluno é implementar a camada de persistência de dados e a chamada de permissões.
-A informação do Tema Dark deve ser salva usando AsyncStorage.
-Os dados de localização devem ser salvos usando SQLite DB.
-Para capturar a localização do usuário deverá ser garantido que as permissões de localização sejam fornecidas, usando expo-location.
+## Funcionalidades Implementadas
 
-Exercício de exemplo nas aulas de Solução Mobile do curso de Engenharia de Software e Engenharia da Computação na UniSATC.
+Este projeto demonstra a aplicação prática dos seguintes conceitos e tecnologias:
+
+* **`AsyncStorage`:** Para a persistência de preferências de usuário, como o tema da interface (Dark Mode).
+* **`expo-location`:** Para a gestão de permissões de localização e a obtenção das coordenadas geográficas do dispositivo.
+* **`expo-sqlite`:** Para a criação e interação com um banco de dados SQLite local, persistindo e recuperando os dados de localização.
+* **`FlatList`:** Para a exibição eficiente de listas de dados, com funcionalidade de rolagem.
 
 ## Instalação
 
-1. **Clone o repositório**
+Para rodar este projeto em seu ambiente:
+
+1.  **Clone o repositório:**
 
     ```bash
-   git clone https://github.com/thyerri-mezzari/myLocationBase
-   cd myLocationBase
-   npm install
-   npx expo start
+    git clone [https://github.com/EliasEnns/atividade-mobile---my-location](https://github.com/EliasEnns/atividade-mobile---my-location)
+    cd atividade-mobile---my-location
+    ```
 
-2. **Rodar o projeto**
+2.  **Instale as dependências:**
 
     ```bash
-   npx expo start
+    npm install
+    # ou
+    # yarn install
+    ```
 
-## Objetivos do exercício
+3.  **Inicie o projeto Expo:**
 
-* Implementar a persistência da informação do tema dark mode usando Async Storage (react-native-async-storage)
-* Implementar a lib expo-location para solicitar as permissões de localização.
-* Implementar a persistência da lista de localizações capturadas usando expo-sqlite. Cada nova localização capturada deve ser inserida no banco de dados e exibida na lista (em tela). Ao abrir o App, os dados devem ser recuperados e exibidos em tela.
+    ```bash
+    npx expo start
+    ```
 
-## Material da aula
+## Contexto Acadêmico
 
-[Link material da aula](https://1drv.ms/f/s!Atw0_tuYGmTXgt9fJrc8tTSG13uabg?e=ffbdBP)
-
-## Prints de tela
-
-![App light mode](https://lh3.googleusercontent.com/pw/AP1GczPy1gSNUM_8dy9qGMlsN5_P-ef4RLqwsinpTKfGna7CEOR0CIeT4JsIXDptk0usB2BsF4gwk8cFQUvMpJzn27Wc4e0pfDffTUkXc23aCF-MhpukeTYqzOAfUL60407v58IqbZa2F03AKPin2CdpbXPClg=w614-h1328-s-no-gm?authuser=0)
-![App dark mode](https://lh3.googleusercontent.com/pw/AP1GczNZg11Nd4spjsQuhjPg9Ldx6TQN3Mttor7kBIbm50aQMcGcksKTuVFjqXraenQmAY-fYYxbLg-kG695SB0Ve0Z9Ga6mGRCxdS0l9u1y0jihcjq1Etq1LnUK8PE4YBWapi8MocEepkkVQ0Z4nUBjAkEXDQ=w614-h1328-s-no-gm?authuser=0) 
+Este projeto foi desenvolvido como um exemplo prático para as aulas de Solução Mobile do curso de Engenharia de Software e Engenharia da Computação na UniSATC, demonstrando uma aplicação funcional das tecnologias abordadas.
