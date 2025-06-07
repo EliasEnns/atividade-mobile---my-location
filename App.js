@@ -11,6 +11,10 @@ import {
 } from "react-native-paper";
 import myColors from "./assets/colors.json";
 import myColorsDark from "./assets/colorsDark.json";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
+import * as Database from './database';
+
 
 export default function App() {
   const [isSwitchOn, setIsSwitchOn] = useState(false); // variável para controle do darkMode
@@ -26,41 +30,79 @@ export default function App() {
   });
 
   // load darkMode from AsyncStorage
-  async function loadDarkMode() {}
+  async function loadDarkMode() {
+    try {
+      const value = await AsyncStorage.getItem('darkModeEnabled');
+      if (value !== null) {
+        setIsSwitchOn(JSON.parse(value));
+      }
+    } catch (e) {
+      console.error("Failed to load dark mode preference.", e);
+    }
+  }
 
   // darkMode switch event
-  async function onToggleSwitch() {
-    setIsSwitchOn(!isSwitchOn);
+async function onToggleSwitch() {
+  const newState = !isSwitchOn;
+  setIsSwitchOn(newState);
+  try {
+    await AsyncStorage.setItem('darkModeEnabled', JSON.stringify(newState));
+  } catch (e) {
+    console.error("Failed to save dark mode preference.", e);
   }
+}
 
   // get location (bottao capturar localização)
   async function getLocation() {
     setIsLoading(true);
-
-    // Localização fake, substituir por localização real do dispositivo
-    const coords = {
-      latitude: -23.5505199,
-      longitude: -46.6333094,
+  
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error('Permission to access location was denied');
+      setIsLoading(false);
+      return;
+    }
+  
+    let location = await Location.getCurrentPositionAsync({});
+    const newLocation = {
+      id: new Date().getTime(), // Usar um ID único, como timestamp
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
     };
-
+  
+    // Adicionar a nova localização ao estado 'locations'
+    // Isso fará com que a FlatList seja atualizada
+    setLocations(prevLocations => [...(prevLocations || []), newLocation]);
+  
+  
+    // **Aqui você chamará a função para salvar no SQLite (próximo passo)**
+    Database.saveLocationToDatabase(newLocation);
+  
     setIsLoading(false);
   }
 
   // load locations from db sqlite - faz a leitura das localizações salvas no banco de dados
   async function loadLocations() {
     setIsLoading(true);
-
-    // generate fake locations
-    const locations = [];
-    for (let i = 0; i < 5; i++) {
-      locations.push({
-        id: i,
-        latitude: -23.5505199 + i,
-        longitude: -46.6333094 + i,
-      });
+    try {
+      const loadedLocations = await Database.loadLocationsFromDatabase();
+      setLocations(loadedLocations);
+    } catch (error) {
+      console.error("Erro ao carregar localizações do banco de dados:", error);
+      setLocations([]); // Definir como array vazio em caso de erro
     }
+    setIsLoading(false);
+  }
 
-    setLocations(locations);
+  async function clearLocations() {
+    setIsLoading(true);
+    try {
+      await Database.deleteLocationsFromDatabase();
+      setLocations([]); // Limpa a lista no estado do componente
+      console.log('Localizações limpas na UI.');
+    } catch (error) {
+      console.error('Erro ao limpar localizações:', error);
+    }
     setIsLoading(false);
   }
 
@@ -68,6 +110,7 @@ export default function App() {
   // É executado apenas uma vez, quando o componente é montado
   useEffect(() => {
     loadDarkMode();
+    Database.initDatabase();
     loadLocations();
   }, []);
 
@@ -86,20 +129,31 @@ export default function App() {
       <Appbar.Header>
         <Appbar.Content title="My Location BASE" />
       </Appbar.Header>
-      <View style={{ backgroundColor: theme.colors.background }}>
-        <View style={styles.containerDarkMode}>
+      <View style={[styles.mainContainer, { backgroundColor: theme.colors.background }]}>
+                <View style={styles.containerDarkMode}>
           <Text>Dark Mode</Text>
           <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
         </View>
         <Button
-          style={styles.containerButton}
-          icon="map"
-          mode="contained"
-          loading={isLoading}
-          onPress={() => getLocation()}
-        >
-          Capturar localização
-        </Button>
+  style={styles.containerButton}
+  icon="map"
+  mode="contained"
+  loading={isLoading}
+  onPress={() => getLocation()}
+>
+  Capturar localização
+</Button>
+
+{/* Novo botão para limpar localizações */}
+<Button
+  style={styles.containerButton}
+  icon="trash-can" // Ícone de lixeira, ou outro de sua preferência
+  mode="outlined" // Para diferenciá-lo do botão principal
+  loading={isLoading}
+  onPress={() => clearLocations()}
+>
+  Limpar localizações
+</Button>
 
         <FlatList
           style={styles.containerList}
@@ -132,8 +186,10 @@ const styles = StyleSheet.create({
   containerButton: {
     margin: 10,
   },
+  mainContainer: {
+    flex: 1,
+  },
   containerList: {
     margin: 10,
-    height: "100%",
   },
 });
