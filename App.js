@@ -94,6 +94,18 @@ async function onToggleSwitch() {
     setIsLoading(false);
   }
 
+  async function clearLocations() {
+    setIsLoading(true);
+    try {
+      await Database.deleteLocationsFromDatabase();
+      setLocations([]); // Limpa a lista no estado do componente
+      console.log('Localizações limpas na UI.');
+    } catch (error) {
+      console.error('Erro ao limpar localizações:', error);
+    }
+    setIsLoading(false);
+  }
+
   // Use Effect para carregar o darkMode e as localizações salvas no banco de dados
   // É executado apenas uma vez, quando o componente é montado
   useEffect(() => {
@@ -117,20 +129,31 @@ async function onToggleSwitch() {
       <Appbar.Header>
         <Appbar.Content title="My Location BASE" />
       </Appbar.Header>
-      <View style={{ backgroundColor: theme.colors.background }}>
-        <View style={styles.containerDarkMode}>
+      <View style={[styles.mainContainer, { backgroundColor: theme.colors.background }]}>
+                <View style={styles.containerDarkMode}>
           <Text>Dark Mode</Text>
           <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
         </View>
         <Button
-          style={styles.containerButton}
-          icon="map"
-          mode="contained"
-          loading={isLoading}
-          onPress={() => getLocation()}
-        >
-          Capturar localização
-        </Button>
+  style={styles.containerButton}
+  icon="map"
+  mode="contained"
+  loading={isLoading}
+  onPress={() => getLocation()}
+>
+  Capturar localização
+</Button>
+
+{/* Novo botão para limpar localizações */}
+<Button
+  style={styles.containerButton}
+  icon="trash-can" // Ícone de lixeira, ou outro de sua preferência
+  mode="outlined" // Para diferenciá-lo do botão principal
+  loading={isLoading}
+  onPress={() => clearLocations()}
+>
+  Limpar localizações
+</Button>
 
         <FlatList
           style={styles.containerList}
@@ -163,8 +186,10 @@ const styles = StyleSheet.create({
   containerButton: {
     margin: 10,
   },
+  mainContainer: {
+    flex: 1,
+  },
   containerList: {
     margin: 10,
-    height: "100%",
   },
 });
